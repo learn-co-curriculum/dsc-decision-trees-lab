@@ -8,7 +8,7 @@ Following the toy example we saw in the previous lesson, we shall now grow a dec
 
 You will be able to:
 
-- Using pandas to prepare the data for the scikit-learn decision tree algorithm
+- Use pandas to prepare the data for the scikit-learn decision tree algorithm
 - Train the classifier with a training dataset and evaluate performance using different measures
 - Visualize the decision tree and interpret the visualization
 
