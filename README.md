@@ -1,5 +1,5 @@
 
-# Building Trees using Scikit Learn - Lab
+# Building Trees using scikit-learn - Lab
 
 ## Introduction
 Following the toy example we saw in the previous lesson, we shall now grow a decision tree for a more complex dataset. This lab covers all major areas of standard machine learning practice , from data acquisition to evaluation of results. We shall use scikit learn, pandas and graphviz libraries to conduct this analysis following the example of play tennis dataset.
