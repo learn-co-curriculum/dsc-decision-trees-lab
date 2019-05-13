@@ -2,7 +2,8 @@
 # Building Trees using scikit-learn - Lab
 
 ## Introduction
-Following the toy example we saw in the previous lesson, we shall now grow a decision tree for a more complex dataset. This lab covers all major areas of standard machine learning practice , from data acquisition to evaluation of results. We shall use scikit learn, pandas and graphviz libraries to conduct this analysis following the example of play tennis dataset.
+
+Following the toy example we saw in the previous lesson, we'll now build a decision tree for a more complex dataset. This lab covers all major areas of standard machine learning practice , from data acquisition to evaluation of results. We'll continue to use the scikit-learn and pandas libraries to conduct this analysis, following the same structure we saw in the previous lesson.
 
 ## Objectives
 
@@ -14,7 +15,7 @@ You will be able to:
 
 ## UCI Banknote Authentication Data Set
 
-In this lab we shall work with a popular dataset for classification called the ["UCI Bank Note Authentication Dataset'](https://archive.ics.uci.edu/ml/datasets/banknote+authentication). This Data were extracted from images that were taken from genuine and forged banknote-like specimens. The notes were first digitized, followed by a numerical transformation using DSP techniques. The final set of engineered features are all continuous in nature (visit the UCI link to learn about feature engineering in detail). 
+In this lab, we'll work with a popular dataset for classification called the "UCI Bank Note Authentication Dataset'. This Data were extracted from images that were taken from genuine and forged banknotes! The notes were first digitized, followed by a numerical transformation using DSP techniques. The final set of engineered features are all continuous in nature, meaning that our dataset consists entirely of floats, with no strings to worry about. If you're curious about how the dataset was created, you can visit the UCI link listed above to learn about feature engineering in detail!
 
 We have following attributes in the dataset. 
 
@@ -43,6 +44,9 @@ import numpy as np
 ```
 
 ## Step 2: Import Data
+
+Now, we'll load our dataset in a DataFrame, perform some basic EDA, and generally get a feel for the data we'll be working with.
+
 - Read the file `"data_banknote_authentication.csv"` as a pandas dataframe. Note that there is no header information in this dataset.
 - Assign column names 'Variance', 'Skewness', 'Curtosis', 'Entropy', 'Class' to dataset in the given order.
 - View the basic statistics and shape of dataset.
@@ -188,20 +192,11 @@ dataset.Class.value_counts()
 
 
 
-
-```python
-## Your Observations 
-
-# We have 1372 examples , so have to be careful with splitting the dataset as we dont want to lose too much info from training set
-# Classes in the output variable are ALMOST balanced , with negative class having a slightly higher frequency
-
-```
-
 ## Step 3: Create Features and Labels, Training and Test Data
 
-So now we need to create our feature set X and labels y. 
-- Create X and y by selecting the appropriate columns from the dataset
-- Create a 80/20 split on the dataset for training/testing. Use random_state=10 for reproducibility
+Now we need to create our feature set `X` and labels `y`. 
+- Create `X` and `y` by selecting the appropriate columns from the dataset
+- Create a 80/20 split on the dataset for training/testing. Use `random_state=10` for reproducibility
 
 
 ```python
@@ -217,7 +212,7 @@ from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state= 10)  
 ```
 
-## Step 4: Train the Classifier and Make PRedictions
+## Step 4: Train the Classifier and Make Predictions
 - Create an instance of decision tree classifier with random_state=10 for reproducibility
 - Fit the traiing data to the model 
 - USe the trained model to make predictions with test data
@@ -276,7 +271,7 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
     
     Confusion Matrix
     ----------------
-
+    
 
 
 
@@ -335,43 +330,6 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
 
 
 
-
-```python
-# Your observations here 
-
-# The classifier seems to perform well with a high accuracy 97% and AUC of 0.98
-# We see a small number (3) for false positive and false negative errors. 
-```
-
-## Step 6: Visualize the tree 
-
-- Use graphviz to visualize the tree 
-- Interpret the results 
-
-
-```python
-# Visualize the tree trained from complete dataset
-dot_data = StringIO()
-export_graphviz(classifier, out_file=dot_data, filled=True, rounded=True,special_characters=True)
-graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
-Image(graph.create_png())
-```
-
-
-
-
-![png](index_files/index_21_0.png)
-
-
-
-
-```python
-## Your observations here
-
-# We see a deep tree with 8 layers
-# Deep trees trying to classify every single example could lead to overfitting in most cases
-```
-
 ## Bonus: Re-grow the Tree Using Entropy 
 
 SO in the above example, we used all default settings for decision tree classifier. The default impurity crietrion in scikit learn is the Gini impurity. We can change it back to entropy by passing in `criterion='entropy'` argument to the classifier in the training phase. 
@@ -397,7 +355,7 @@ print('\nConfusion Matrix')
 print('----------------')
 print(pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=True))
 
-# Visualize the tree trained from complete dataset
+# Visualize the tree trained from complete dataset (optional)
 dot_data = StringIO()
 export_graphviz(classifier2, out_file=dot_data, filled=True, rounded=True,special_characters=True)
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
@@ -415,23 +373,14 @@ Image(graph.create_png())
     0          151    1  152
     1            0  123  123
     All        151  124  275
+    
 
 
 
 
-
-![png](index_files/index_25_1.png)
-
+![png](output_20_1.png)
 
 
-
-```python
-# Your observations here 
-
-# With entropy we see a much lower accuracy and AUC than earlier
-# Only one false positive value , leading to accuracy of 99%
-# The tree shape changes considerably with change in impurity criteria 
-```
 
 ## Level up - Optional 
 
