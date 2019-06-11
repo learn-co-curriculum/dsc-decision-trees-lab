@@ -214,7 +214,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random
 
 ## Step 4: Train the Classifier and Make Predictions
 - Create an instance of decision tree classifier with random_state=10 for reproducibility
-- Fit the traiing data to the model 
+- Fit the training data to the model 
 - USe the trained model to make predictions with test data
 
 
@@ -271,7 +271,7 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
     
     Confusion Matrix
     ----------------
-    
+
 
 
 
@@ -332,7 +332,7 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
 
 ## Bonus: Re-grow the Tree Using Entropy 
 
-SO in the above example, we used all default settings for decision tree classifier. The default impurity crietrion in scikit learn is the Gini impurity. We can change it back to entropy by passing in `criterion='entropy'` argument to the classifier in the training phase. 
+SO in the above example, we used all default settings for decision tree classifier. The default impurity criterion in scikit-learn is the Gini impurity. We can change it back to entropy by passing in `criterion='entropy'` argument to the classifier in the training phase. 
 - Repeat the above tasks for training, evaluation and visualization using Entropy measure. (
 - Compare and interpret the results 
 
@@ -373,19 +373,19 @@ Image(graph.create_png())
     0          151    1  152
     1            0  123  123
     All        151  124  275
-    
 
 
 
 
-![png](output_20_1.png)
+
+![png](index_files/index_20_1.png)
 
 
 
 ## Level up - Optional 
 
 - We discussed earlier that decision trees are very sensitive towards outliers. Try to identify and remove/fix any possible outliers in the dataset. 
-- Check the distributions of the data. Is there any room for normalization/scaling of data ? Apply these techiques and see if it improves upon accuracy score. 
+- Check the distributions of the data. Is there any room for normalization/scaling of data ? Apply these techniques and see if it improves upon accuracy score. 
 
 ## Summary 
 
