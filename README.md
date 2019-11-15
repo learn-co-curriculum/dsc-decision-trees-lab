@@ -3,61 +3,65 @@
 
 ## Introduction
 
-Following the toy example we saw in the previous lesson, we'll now build a decision tree for a more complex dataset. This lab covers all major areas of standard machine learning practice , from data acquisition to evaluation of results. We'll continue to use the scikit-learn and pandas libraries to conduct this analysis, following the same structure we saw in the previous lesson.
+Following the simple example you saw in the previous lesson, you'll now build a decision tree for a more complex dataset. This lab covers all major areas of standard machine learning practice, from data acquisition to evaluation of results. We'll continue to use the Scikit-learn and Pandas libraries to conduct this analysis, following the same structure we saw in the previous lesson.
 
 ## Objectives
 
-You will be able to:
+In this lab you will:
 
-- Use pandas to prepare the data for the scikit-learn decision tree algorithm
-- Train the classifier with a training dataset and evaluate performance using different measures
-- Visualize the decision tree and interpret the visualization
+- Use scikit-learn to fit a decision tree classification model 
+- Use entropy and information gain to identify the attribute for best split at each node 
+- Plot a decision tree using Python 
 
-## UCI Banknote Authentication Data Set
+## UCI Banknote authentication dataset
 
-In this lab, we'll work with a popular dataset for classification called the "UCI Bank Note Authentication Dataset'. This Data were extracted from images that were taken from genuine and forged banknotes! The notes were first digitized, followed by a numerical transformation using DSP techniques. The final set of engineered features are all continuous in nature, meaning that our dataset consists entirely of floats, with no strings to worry about. If you're curious about how the dataset was created, you can visit the UCI link listed above to learn about feature engineering in detail!
+In this lab, you'll work with a popular dataset for classification called the "UCI Bank note authentication dataset". This data were extracted from images that were taken from genuine and forged banknotes! The notes were first digitized, followed by a numerical transformation using DSP techniques. The final set of engineered features are all continuous in nature, meaning that our dataset consists entirely of floats, with no strings to worry about. If you're curious about how the dataset was created, you can visit the UCI link [here](https://archive.ics.uci.edu/ml/datasets/banknote+authentication)!
 
-We have following attributes in the dataset. 
+We have following attributes in the dataset:  
 
-1. __Variance__ of Wavelet Transformed image (continuous) 
-2. __Skewness__ of Wavelet Transformed image (continuous) 
-3. __Curtosis__ of Wavelet Transformed image (continuous) 
+1. __Variance__ of wavelet transformed image (continuous) 
+2. __Skewness__ of wavelet transformed image (continuous) 
+3. __Curtosis__ of wavelet transformed image (continuous) 
 4. __Entropy__ of image (continuous) 
 5. __Class__ (integer) - Target/Label 
 
-## Step 1: Import necessary Libraries
-- Import necessary libraries as we saw in previous lesson
+## Step 1: Import the necessary libraries 
+
+We've imported all the necessary modules you will require for this lab, go ahead and run the following cell: 
 
 
 ```python
 # Import necessary libraries
-
-## Your code here 
+import numpy as np 
+import pandas as pd 
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.metrics import accuracy_score, roc_curve, auc
+from sklearn.tree import export_graphviz
+from IPython.display import Image  
+from pydotplus import graph_from_dot_data
 ```
 
 
 ```python
 # __SOLUTION__ 
+import numpy as np 
+import pandas as pd 
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier 
 from sklearn.metrics import accuracy_score, roc_curve, auc
-from sklearn import tree 
-from sklearn.externals.six import StringIO  
-from IPython.display import Image  
 from sklearn.tree import export_graphviz
-import pydotplus
-import pandas as pd 
-import numpy as np
-%matplotlib inline
+from IPython.display import Image  
+from pydotplus import graph_from_dot_data
 ```
 
-## Step 2: Import Data
+## Step 2: Import data
 
-Now, we'll load our dataset in a DataFrame, perform some basic EDA, and generally get a feel for the data we'll be working with.
+Now, you'll load our dataset in a DataFrame, perform some basic EDA, and get a general feel for the data you'll be working with.
 
-- Read the file `"data_banknote_authentication.csv"` as a pandas dataframe. Note that there is no header information in this dataset.
-- Assign column names 'Variance', 'Skewness', 'Curtosis', 'Entropy', 'Class' to dataset in the given order.
-- View the basic statistics and shape of dataset.
+- Import the file `'data_banknote_authentication.csv'` as a pandas DataFrame. Note that there is no header information in this dataset 
+- Assign column names `'Variance'`, `'Skewness'`, `'Curtosis'`, `'Entropy'`, and `'Class'` to dataset in the given order 
+- View the basic statistics and shape of dataset 
 - Check for frequency of positive and negative examples in the target variable
 
 
@@ -65,6 +69,15 @@ Now, we'll load our dataset in a DataFrame, perform some basic EDA, and generall
 # Create Dataframe
 
 ## Your code here 
+
+```
+
+
+```python
+# __SOLUTION__ 
+# Create Dataframe
+dataset = pd.read_csv('data_banknote_authentication.csv', header=None) 
+dataset.columns = ['Variance', 'Skewness', 'Curtosis', 'Entropy', 'Class']
 ```
 
 
@@ -72,28 +85,7 @@ Now, we'll load our dataset in a DataFrame, perform some basic EDA, and generall
 # Describe the dataset
 
 ## Your code here 
-```
 
-
-```python
-# Shape of dataset
-
-## Your code here 
-```
-
-
-```python
-# Class frequency of target variable 
-
-## Your code here 
-```
-
-
-```python
-# __SOLUTION__ 
-# Create Dataframe
-dataset = pd.read_csv("data_banknote_authentication.csv", header=None) 
-dataset.columns = ['Variance', 'Skewness', 'Curtosis', 'Entropy', 'Class']
 ```
 
 
@@ -204,6 +196,14 @@ dataset.describe()
 
 
 ```python
+# Shape of dataset
+
+## Your code here 
+
+```
+
+
+```python
 # __SOLUTION__ 
 # Shape of dataset
 dataset.shape
@@ -218,9 +218,17 @@ dataset.shape
 
 
 ```python
+# Class frequency of target variable 
+
+## Your code here 
+
+```
+
+
+```python
 # __SOLUTION__ 
 # Class frequency of target variable 
-dataset.Class.value_counts()
+dataset['Class'].value_counts()
 ```
 
 
@@ -232,24 +240,18 @@ dataset.Class.value_counts()
 
 
 
-## Step 3: Create Features and Labels, Training and Test Data
+## Step 3: Create features, labels, training, and test data
 
-Now we need to create our feature set `X` and labels `y`. 
+Now we need to create our feature set `X` and labels `y`:  
 - Create `X` and `y` by selecting the appropriate columns from the dataset
-- Create a 80/20 split on the dataset for training/testing. Use `random_state=10` for reproducibility
+- Create a 80/20 split on the dataset for training/test. Use `random_state=10` for reproducibility
 
 
 ```python
 # Create features and labels
 
 ## Your code here 
-```
 
-
-```python
-# Perform an 80/20 split
-
-## Your code here 
 ```
 
 
@@ -262,29 +264,30 @@ y = dataset['Class']
 
 
 ```python
-# __SOLUTION__ 
 # Perform an 80/20 split
-from sklearn.model_selection import train_test_split  
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state= 10)  
+
+## Your code here 
+
 ```
 
-## Step 4: Train the Classifier and Make Predictions
-- Create an instance of decision tree classifier with random_state=10 for reproducibility
+
+```python
+# __SOLUTION__ 
+# Perform an 80/20 split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=10)  
+```
+
+## Step 4: Train the classifier and make predictions
+- Create an instance of decision tree classifier with `random_state=10` for reproducibility
 - Fit the training data to the model 
-- USe the trained model to make predictions with test data
+- Use the trained model to make predictions with test data
 
 
 ```python
 # Train a DT classifier
 
-## Your code here 
-```
+## Your code here
 
-
-```python
-# Make predictions for test data
-
-## Your code here 
 ```
 
 
@@ -299,13 +302,21 @@ classifier.fit(X_train, y_train)
 
 
     DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
-                max_features=None, max_leaf_nodes=None,
-                min_impurity_decrease=0.0, min_impurity_split=None,
-                min_samples_leaf=1, min_samples_split=2,
-                min_weight_fraction_leaf=0.0, presort=False, random_state=10,
-                splitter='best')
+                           max_features=None, max_leaf_nodes=None,
+                           min_impurity_decrease=0.0, min_impurity_split=None,
+                           min_samples_leaf=1, min_samples_split=2,
+                           min_weight_fraction_leaf=0.0, presort=False,
+                           random_state=10, splitter='best')
 
 
+
+
+```python
+# Make predictions for test data
+
+## Your code here 
+
+```
 
 
 ```python
@@ -314,30 +325,40 @@ classifier.fit(X_train, y_train)
 y_pred = classifier.predict(X_test)  
 ```
 
-## Step 5: Check Predictive Performance
+## Step 5: Check predictive performance
 
-We can now use different evaluation measures to check the predictive performance of the classifier. 
-- Check the accuracy , AUC and create a confusion matrix 
+Use different evaluation measures to check the predictive performance of the classifier: 
+- Check the accuracy, AUC, and create a confusion matrix 
 - Interpret the results 
 
 
 ```python
-# Calculate Accuracy , AUC and Confusion matrix 
+# Calculate accuracy 
+acc = None
+print('Accuracy is :{0}'.format(acc))
 
-## Your code here 
+# Check the AUC for predictions
+false_positive_rate, true_positive_rate, thresholds = None
+roc_auc = None
+print('\nAUC is :{0}'.format(round(roc_auc, 2)))
+
+# Create and print a confusion matrix 
+print('\nConfusion Matrix')
+print('----------------')
+
 ```
 
 
 ```python
 # __SOLUTION__ 
-# Calculate Accuracy 
+# Calculate accuracy 
 acc = accuracy_score(y_test,y_pred) * 100
-print("Accuracy is :{0}".format(acc))
+print('Accuracy is :{0}'.format(acc))
 
 # Check the AUC for predictions
 false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test, y_pred)
 roc_auc = auc(false_positive_rate, true_positive_rate)
-print("\nAUC is :{0}".format(round(roc_auc,2)))
+print('\nAUC is :{0}'.format(round(roc_auc, 2)))
 
 # Create and print a confusion matrix 
 print('\nConfusion Matrix')
@@ -410,73 +431,85 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
 
 
 
-## Bonus: Re-grow the Tree Using Entropy 
+## Level up (Optional)
 
-SO in the above example, we used all default settings for decision tree classifier. The default impurity criterion in scikit-learn is the Gini impurity. We can change it back to entropy by passing in `criterion='entropy'` argument to the classifier in the training phase. 
-- Repeat the above tasks for training, evaluation and visualization using Entropy measure. (
-- Compare and interpret the results 
+
+### Re-grow the tree using entropy 
+
+The default impurity criterion in scikit-learn is the Gini impurity. We can change it to entropy by passing in `criterion='entropy'` argument to the classifier in the training phase.  
+
+- Create an instance of decision tree classifier with `random_state=10` for reproducibility. Make sure you use entropy to calculate impurity 
+- Fit this classifier to training data 
+- Run the given code to plot the decision tree
 
 
 ```python
-
-
-## Your code here 
-
+# Instantiate and fit a DecisionTreeClassifier
+classifier_2 = None
 
 ```
 
 
 ```python
 # __SOLUTION__ 
-# Train a DT classifier
-classifier2 = DecisionTreeClassifier(random_state=10, criterion='entropy')  
-classifier2.fit(X_train, y_train)  
-# Make predictions for test data
-y_pred = classifier2.predict(X_test) 
-# Calculate Accuracy 
-acc = accuracy_score(y_test,y_pred) * 100
-print("Accuracy is :{0}".format(acc))
-# Check the AUC for predictions
-false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test, y_pred)
-roc_auc = auc(false_positive_rate, true_positive_rate)
-print("\nAUC is :{0}".format(round(roc_auc,2)))
-# Create and print a confusion matrix 
-print('\nConfusion Matrix')
-print('----------------')
-print(pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=True))
+# Instantiate and fit a DecisionTreeClassifier
+classifier_2 = DecisionTreeClassifier(random_state=10, criterion='entropy')  
+classifier_2.fit(X_train, y_train)
+```
 
-# Visualize the tree trained from complete dataset (optional)
-dot_data = StringIO()
-export_graphviz(classifier2, out_file=dot_data, filled=True, rounded=True,special_characters=True)
-graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
+
+
+
+    DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
+                           max_features=None, max_leaf_nodes=None,
+                           min_impurity_decrease=0.0, min_impurity_split=None,
+                           min_samples_leaf=1, min_samples_split=2,
+                           min_weight_fraction_leaf=0.0, presort=False,
+                           random_state=10, splitter='best')
+
+
+
+
+```python
+# Create DOT data
+dot_data = export_graphviz(classifier_2, out_file=None, 
+                           feature_names=X_train.columns,  
+                           class_names=np.unique(y).astype('str'), 
+                           filled=True, rounded=True, special_characters=True)
+
+# Draw graph
+graph = graph_from_dot_data(dot_data)  
+
+# Show graph
 Image(graph.create_png())
 ```
 
-    Accuracy is :99.63636363636364
-    
-    AUC is :1.0
-    
-    Confusion Matrix
-    ----------------
-    Predicted    0    1  All
-    True                    
-    0          151    1  152
-    1            0  123  123
-    All        151  124  275
+
+```python
+# __SOLUTION__ 
+# Create DOT data
+dot_data = export_graphviz(classifier_2, out_file=None, 
+                           feature_names=X_train.columns,  
+                           class_names=np.unique(y).astype('str'), 
+                           filled=True, rounded=True, special_characters=True)
+
+# Draw graph
+graph = graph_from_dot_data(dot_data)  
+
+# Show graph
+Image(graph.create_png())
+```
 
 
 
 
-
-![png](index_files/index_31_1.png)
-
+![png](index_files/index_33_0.png)
 
 
-## Level up - Optional 
 
-- We discussed earlier that decision trees are very sensitive towards outliers. Try to identify and remove/fix any possible outliers in the dataset. 
-- Check the distributions of the data. Is there any room for normalization/scaling of data ? Apply these techniques and see if it improves upon accuracy score. 
+- We discussed earlier that decision trees are very sensitive to outliers. Try to identify and remove/fix any possible outliers in the dataset  
+- Check the distributions of the data. Is there any room for normalization/scaling of data? Apply these techniques and see if it improves upon accuracy score 
 
 ## Summary 
 
-In this lesson, we looked at growing a decision tree for banknote authentication dataset which is composed of extracted continuous features from photographic data. We looked at different stages of the experiment including data acquisition, training, prediction and evaluation. We also looked at growing trees using entropy vs. gini impurity criteria. In following lessons, we shall look at some more such pre-train tuning techniques for ensuring an optimal classifier for learning and prediction.  
+In this lesson, we looked at growing a decision tree for banknote authentication dataset which is composed of extracted continuous features from photographic data. We looked at data acquisition, training, prediction, and evaluation. We also looked at growing trees using entropy vs. gini impurity criteria. In following lessons, we shall look at some more such pre-train tuning techniques for ensuring an optimal classifier for learning and prediction.  
