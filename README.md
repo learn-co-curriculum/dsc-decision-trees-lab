@@ -34,12 +34,12 @@ We've imported all the necessary modules you will require for this lab, go ahead
 # Import necessary libraries
 import numpy as np 
 import pandas as pd 
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier 
 from sklearn.metrics import accuracy_score, roc_curve, auc
-from sklearn.tree import export_graphviz
-from IPython.display import Image  
-from pydotplus import graph_from_dot_data
+from sklearn.preprocessing import OneHotEncoder
+from sklearn import tree
 ```
 
 
@@ -48,12 +48,12 @@ from pydotplus import graph_from_dot_data
 # Import necessary libraries
 import numpy as np 
 import pandas as pd 
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier 
 from sklearn.metrics import accuracy_score, roc_curve, auc
-from sklearn.tree import export_graphviz
-from IPython.display import Image  
-from pydotplus import graph_from_dot_data
+from sklearn.preprocessing import OneHotEncoder
+from sklearn import tree
 ```
 
 ## Step 2: Import data
@@ -122,7 +122,7 @@ dataset.describe()
   </thead>
   <tbody>
     <tr>
-      <th>count</th>
+      <td>count</td>
       <td>1372.000000</td>
       <td>1372.000000</td>
       <td>1372.000000</td>
@@ -130,7 +130,7 @@ dataset.describe()
       <td>1372.000000</td>
     </tr>
     <tr>
-      <th>mean</th>
+      <td>mean</td>
       <td>0.433735</td>
       <td>1.922353</td>
       <td>1.397627</td>
@@ -138,7 +138,7 @@ dataset.describe()
       <td>0.444606</td>
     </tr>
     <tr>
-      <th>std</th>
+      <td>std</td>
       <td>2.842763</td>
       <td>5.869047</td>
       <td>4.310030</td>
@@ -146,7 +146,7 @@ dataset.describe()
       <td>0.497103</td>
     </tr>
     <tr>
-      <th>min</th>
+      <td>min</td>
       <td>-7.042100</td>
       <td>-13.773100</td>
       <td>-5.286100</td>
@@ -154,7 +154,7 @@ dataset.describe()
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>25%</th>
+      <td>25%</td>
       <td>-1.773000</td>
       <td>-1.708200</td>
       <td>-1.574975</td>
@@ -162,7 +162,7 @@ dataset.describe()
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>50%</th>
+      <td>50%</td>
       <td>0.496180</td>
       <td>2.319650</td>
       <td>0.616630</td>
@@ -170,7 +170,7 @@ dataset.describe()
       <td>0.000000</td>
     </tr>
     <tr>
-      <th>75%</th>
+      <td>75%</td>
       <td>2.821475</td>
       <td>6.814625</td>
       <td>3.179250</td>
@@ -178,7 +178,7 @@ dataset.describe()
       <td>1.000000</td>
     </tr>
     <tr>
-      <th>max</th>
+      <td>max</td>
       <td>6.824800</td>
       <td>12.951600</td>
       <td>17.927400</td>
@@ -261,9 +261,10 @@ y = dataset['Class']
 
 
 ```python
-# __SOLUTION__ 
+# __SOLUTION__
 # Perform an 80/20 split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=10)  
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=10)
 ```
 
 ## Step 4: Train the classifier and make predictions
@@ -288,11 +289,11 @@ classifier.fit(X_train, y_train)
 
 
 
-    DecisionTreeClassifier(class_weight=None, criterion='gini', max_depth=None,
-                           max_features=None, max_leaf_nodes=None,
+    DecisionTreeClassifier(ccp_alpha=0.0, class_weight=None, criterion='gini',
+                           max_depth=None, max_features=None, max_leaf_nodes=None,
                            min_impurity_decrease=0.0, min_impurity_split=None,
                            min_samples_leaf=1, min_samples_split=2,
-                           min_weight_fraction_leaf=0.0, presort=False,
+                           min_weight_fraction_leaf=0.0, presort='deprecated',
                            random_state=10, splitter='best')
 
 
@@ -392,19 +393,19 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
   </thead>
   <tbody>
     <tr>
-      <th>0</th>
+      <td>0</td>
       <td>149</td>
       <td>3</td>
       <td>152</td>
     </tr>
     <tr>
-      <th>1</th>
+      <td>1</td>
       <td>3</td>
       <td>120</td>
       <td>123</td>
     </tr>
     <tr>
-      <th>All</th>
+      <td>All</td>
       <td>152</td>
       <td>123</td>
       <td>275</td>
@@ -413,6 +414,20 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
 </table>
 </div>
 
+
+
+
+```python
+# __SOLUTION__ 
+# Alternative confusion matrix
+from sklearn.metrics import plot_confusion_matrix
+
+plot_confusion_matrix(classifier, X, y, values_format='.3g')
+plt.show()
+```
+
+
+![png](index_files/index_28_0.png)
 
 
 ## Level up (Optional)
@@ -443,55 +458,55 @@ classifier_2.fit(X_train, y_train)
 
 
 
-    DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
-                           max_features=None, max_leaf_nodes=None,
+    DecisionTreeClassifier(ccp_alpha=0.0, class_weight=None, criterion='entropy',
+                           max_depth=None, max_features=None, max_leaf_nodes=None,
                            min_impurity_decrease=0.0, min_impurity_split=None,
                            min_samples_leaf=1, min_samples_split=2,
-                           min_weight_fraction_leaf=0.0, presort=False,
+                           min_weight_fraction_leaf=0.0, presort='deprecated',
                            random_state=10, splitter='best')
 
 
 
 
 ```python
-# Create DOT data
-dot_data = export_graphviz(classifier_2, out_file=None, 
-                           feature_names=X_train.columns,  
-                           class_names=np.unique(y).astype('str'), 
-                           filled=True, rounded=True, special_characters=True)
-
-# Draw graph
-graph = graph_from_dot_data(dot_data)  
-
-# Show graph
-Image(graph.create_png())
+# Plot and show decision tree
+plt.figure(figsize=(12,12), dpi=500)
+tree.plot_tree(classifier_2, 
+               feature_names=X.columns,
+               class_names=np.unique(y).astype('str'),
+               filled=True, rounded=True)
+plt.show()
 ```
 
 
 ```python
 # __SOLUTION__ 
-# Create DOT data
-dot_data = export_graphviz(classifier_2, out_file=None, 
-                           feature_names=X_train.columns,  
-                           class_names=np.unique(y).astype('str'), 
-                           filled=True, rounded=True, special_characters=True)
-
-# Draw graph
-graph = graph_from_dot_data(dot_data)  
-
-# Show graph
-Image(graph.create_png())
+# Plot and show decision tree
+plt.figure(figsize=(12,12), dpi=500)
+tree.plot_tree(classifier_2, 
+               feature_names=X.columns,
+               class_names=np.unique(y).astype('str'),
+               filled=True, rounded=True)
+plt.show()
 ```
 
 
-
-
-![png](index_files/index_33_0.png)
-
+![png](index_files/index_34_0.png)
 
 
 - We discussed earlier that decision trees are very sensitive to outliers. Try to identify and remove/fix any possible outliers in the dataset.
+
+
+```python
+
+```
+
 - Check the distributions of the data. Is there any room for normalization/scaling of the data? Apply these techniques and see if it improves the accuracy score.
+
+
+```python
+
+```
 
 ## Summary 
 
