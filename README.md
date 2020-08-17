@@ -34,12 +34,12 @@ We've imported all the necessary modules you will require for this lab, go ahead
 # Import necessary libraries
 import numpy as np 
 import pandas as pd 
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier 
 from sklearn.metrics import accuracy_score, roc_curve, auc
-from sklearn.tree import export_graphviz
-from IPython.display import Image  
-from pydotplus import graph_from_dot_data
+from sklearn.preprocessing import OneHotEncoder
+from sklearn import tree
 ```
 
 ## Step 2: Import data
@@ -151,21 +151,28 @@ classifier_2 = None
 
 
 ```python
-# Create DOT data
-dot_data = export_graphviz(classifier_2, out_file=None, 
-                           feature_names=X_train.columns,  
-                           class_names=np.unique(y).astype('str'), 
-                           filled=True, rounded=True, special_characters=True)
-
-# Draw graph
-graph = graph_from_dot_data(dot_data)  
-
-# Show graph
-Image(graph.create_png())
+# Plot and show decision tree
+plt.figure(figsize=(12,12), dpi=500)
+tree.plot_tree(classifier_2, 
+               feature_names=X.columns,
+               class_names=np.unique(y).astype('str'),
+               filled=True, rounded=True)
+plt.show()
 ```
 
 - We discussed earlier that decision trees are very sensitive to outliers. Try to identify and remove/fix any possible outliers in the dataset.
+
+
+```python
+
+```
+
 - Check the distributions of the data. Is there any room for normalization/scaling of the data? Apply these techniques and see if it improves the accuracy score.
+
+
+```python
+
+```
 
 ## Summary 
 
