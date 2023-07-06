@@ -1,4 +1,3 @@
-
 # Building Trees using scikit-learn - Lab
 
 ## Introduction
