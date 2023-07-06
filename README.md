@@ -1,4 +1,3 @@
-
 # Building Trees using scikit-learn - Lab
 
 ## Introduction
@@ -420,14 +419,17 @@ pd.crosstab(y_test, y_pred, rownames=['True'], colnames=['Predicted'], margins=T
 ```python
 # __SOLUTION__ 
 # Alternative confusion matrix
-from sklearn.metrics import plot_confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
-plot_confusion_matrix(classifier, X, y, values_format='.3g')
-plt.show()
+cnf_matrix = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cnf_matrix, display_labels=classifier.classes_)
+disp.plot(cmap=plt.cm.Blues)
 ```
 
 
+    
 ![png](index_files/index_28_0.png)
+    
 
 
 ## Level up (Optional)
@@ -491,7 +493,9 @@ plt.show()
 ```
 
 
+    
 ![png](index_files/index_34_0.png)
+    
 
 
 - We discussed earlier that decision trees are very sensitive to outliers. Try to identify and remove/fix any possible outliers in the dataset.
